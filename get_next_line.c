@@ -21,18 +21,14 @@ char		*my_strcpy(char *dest, const char *src)
   return (dest);
 }
 
-char		  *xrealloc(char *ptr, size_t size)
+char		*xrealloc(char *ptr, size_t size)
 {
   char		*new;
 
   if (size == 0 && ptr)
     return (xfree(ptr), NULL);
   if (ptr == NULL)
-    {
-      if ((new = malloc(sizeof(char) * (size))) == NULL)
-	return (NULL);
-      return (new);
-    }
+    return (((new = malloc(sizeof(char) * (size))) == NULL) ? NULL : new);
   if ((new = malloc(sizeof(char) * (size))) == NULL)
     return (NULL);
   new = my_strcpy(new, ptr);
@@ -44,7 +40,8 @@ static char	    char_from_buffer(const int fd)
   static char 	*save = NULL;
   static char 	buf[READ_SIZE];
   static int  	rd = 0;
-  static int	  i = 0;
+  static int	i = 0;
+  char		to_ret;
 
   if (rd == 0)
     {
@@ -54,7 +51,9 @@ static char	    char_from_buffer(const int fd)
       save = (char *)buf;
     }
   rd--;
-  return (save[i++]);
+  to_ret = save[i];
+  i++;
+  return (to_ret);
 }
 
 char		*get_next_line(const int fd, size_t len)
@@ -75,7 +74,7 @@ char		*get_next_line(const int fd, size_t len)
       line[len++] = new_char;
       if ((new_char = char_from_buffer(fd)) == 0)
 	return (NULL);
-      if (len % (READ_SIZE + 1) == 0)
+      if (len % (READ_SIZE) == 0)
 	{
 	  line[len] = 0;
 	  if ((line = xrealloc(line, (len + READ_SIZE + 1))) == NULL)
@@ -84,4 +83,15 @@ char		*get_next_line(const int fd, size_t len)
     }
   line[len] = 0;
   return (line);
+}
+
+#include <stdio.h>
+int	main()
+{
+  char	*tmp;
+
+  tmp = NULL;
+  while (xfree(tmp) && (tmp = get_next_line(0, 0)))
+    printf("%s\n", tmp);
+  return (0);
 }
