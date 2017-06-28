@@ -57,8 +57,8 @@ static char	    char_from_buffer(const int fd)
 
 char		*get_next_line(const int fd, size_t len)
 {
-  char 	*line;
-  char	new_char;
+  char 		*line;
+  char		new_char;
 
   line = NULL;
   new_char = 0;
