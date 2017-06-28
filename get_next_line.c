@@ -1,6 +1,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+#define READ_SIZE (256)
+
 int 		xfree(void *ptr)
 {
   if (ptr)
@@ -40,13 +42,13 @@ char		  *xrealloc(char *ptr, size_t size)
 static char	    char_from_buffer(const int fd)
 {
   static char 	*save = NULL;
-  static char 	buf[FILE_BUFFER];
+  static char 	buf[READ_SIZE];
   static int  	rd = 0;
   static int	  i = 0;
 
   if (rd == 0)
     {
-      if ((rd = read(fd, buf, FILE_BUFFER)) <= 0)
+      if ((rd = read(fd, buf, READ_SIZE)) <= 0)
 	return (0);
       i = 0;
       save = (char *)buf;
@@ -66,17 +68,17 @@ char		*get_next_line(const int fd, size_t len)
     return (NULL);
   if (new_char == '\0')
     return (NULL);
-  if ((line = malloc(sizeof(char) * (FILE_BUFFER + 1))) == NULL)
+  if ((line = malloc(sizeof(char) * (READ_SIZE + 1))) == NULL)
     return (NULL);
   while (new_char != '\n' && new_char)
     {
       line[len++] = new_char;
       if ((new_char = char_from_buffer(fd)) == 0)
 	return (NULL);
-      if (len % (FILE_BUFFER + 1) == 0)
+      if (len % (READ_SIZE + 1) == 0)
 	{
 	  line[len] = 0;
-	  if ((line = xrealloc(line, (len + FILE_BUFFER + 1))) == NULL)
+	  if ((line = xrealloc(line, (len + READ_SIZE + 1))) == NULL)
 	    return (NULL);
 	}
     }
