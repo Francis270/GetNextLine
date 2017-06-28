@@ -35,7 +35,7 @@ char		  *xrealloc(char *ptr, size_t size)
     }
   if ((new = malloc(sizeof(char) * (size))) == NULL)
     return (NULL);
-  new = strcpy(new, ptr);
+  new = my_strcpy(new, ptr);
   return (xfree(ptr), new);
 }
 
