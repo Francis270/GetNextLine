@@ -8,6 +8,17 @@ int 		xfree(void *ptr)
   return (1);
 }
 
+char		*my_strcpy(char *dest, const char *src)
+{
+  int		len;
+
+  len = -1;
+  while (src[++len])
+    dest[len] = src[len];
+  dest[len] = 0;
+  return (dest);
+}
+
 char		  *xrealloc(char *ptr, size_t size)
 {
   char		*new;
