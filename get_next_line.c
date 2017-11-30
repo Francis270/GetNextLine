@@ -1,97 +1,83 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-#define READ_SIZE (256)
+#define READ_SIZE (0x200)
 
-int 		xfree(void *ptr)
+bool            my_free(void *ptr)
 {
-  if (ptr)
-    free(ptr);
-  return (1);
+        if (ptr)
+                free(ptr);
+        return (true);
 }
 
-char		*my_strcpy(char *dest, const char *src)
+void                    *my_memcpy(void *dest, const void *src, const size_t n)
 {
-  int		len;
+        char            *dp = dest;
+        const char      *sp = src;
+        size_t          i = n;
 
-  len = -1;
-  while (src[++len])
-    dest[len] = src[len];
-  dest[len] = 0;
-  return (dest);
+        if (i) {
+                i++;
+                while (--i) {
+                        *dp++ = *sp++;
+                }
+        }
+        return (dest);
 }
 
-char		*xrealloc(char *ptr, size_t size)
+void            *my_realloc(void *ptr, const size_t size)
 {
-  char		*new;
+        void    *new_mem = NULL;
 
-  if (size == 0 && ptr)
-    return (xfree(ptr), NULL);
-  if (ptr == NULL)
-    return (((new = malloc(sizeof(char) * (size))) == NULL) ? NULL : new);
-  if ((new = malloc(sizeof(char) * (size))) == NULL)
-    return (NULL);
-  new = my_strcpy(new, ptr);
-  return (xfree(ptr), new);
+        if (!size) {
+                my_free(ptr);
+                return (NULL);
+        }
+        new_mem = malloc(size);
+        if (!new_mem) {
+                return (NULL);
+        }
+        if (!ptr) {
+                return (new_mem);
+        }
+        my_memcpy(new_mem, ptr, size);
+        my_free(ptr);
+        return (new_mem);
 }
 
-static char	    char_from_buffer(const int fd)
+char                    *get_next_line(const int fd)
 {
-  static char 	*save = NULL;
-  static char 	buf[READ_SIZE];
-  static int  	rd = 0;
-  static int	i = 0;
-  char		to_ret;
+        static char     buf[READ_SIZE];
+        static int      rd = 0;
+        static int      s_rd = 0;
+        char            *s = NULL;
+        char            nc = 0;
+        size_t          i = 0;
 
-  if (rd == 0)
-    {
-      if ((rd = read(fd, buf, READ_SIZE)) <= 0)
-	return (0);
-      i = 0;
-      save = (char *)buf;
-    }
-  rd--;
-  to_ret = save[i];
-  i++;
-  return (to_ret);
-}
-
-char		*get_next_line(const int fd, size_t len)
-{
-  char 		*line;
-  char		new_char;
-
-  line = NULL;
-  new_char = 0;
-  if ((new_char = char_from_buffer(fd)) == 0)
-    return (NULL);
-  if (new_char == '\0')
-    return (NULL);
-  if ((line = malloc(sizeof(char) * (READ_SIZE + 1))) == NULL)
-    return (NULL);
-  while (new_char != '\n' && new_char)
-    {
-      line[len++] = new_char;
-      if ((new_char = char_from_buffer(fd)) == 0)
-	return (NULL);
-      if (len % (READ_SIZE) == 0)
-	{
-	  line[len] = 0;
-	  if ((line = xrealloc(line, (len + READ_SIZE + 1))) == NULL)
-	    return (NULL);
-	}
-    }
-  line[len] = 0;
-  return (line);
+        if (!(s = malloc(sizeof(char) * (READ_SIZE + 1))))
+                return (NULL);
+        while (nc != '\n') {
+                if (!rd && my_memset(buf, 0, READ_SIZE) &&
+                (s_rd = (rd = read(fd, buf, READ_SIZE))) && s_rd <= 0)
+                        return (NULL);
+                nc = buf[((rd--) - s_rd) * -1];
+                if (!(s[i++] = nc) || (!(i % READ_SIZE) && !(s[i] = 0) &&
+                !(s = my_realloc(s, sizeof(char) * (i + READ_SIZE + 1)))))
+                        return (NULL);
+        }
+        s[i] = 0;
+        return (s);
 }
 
 #include <stdio.h>
-int	main()
+int		main()
 {
-  char	*tmp;
+	char	*str = NULL;
+	int	file_desc = 0;
 
-  tmp = NULL;
-  while (xfree(tmp) && (tmp = get_next_line(0, 0)))
-    printf("%s\n", tmp);
-  return (0);
+	while (!(str = get_next_line(file_desc)) {
+		printf("%s\n", str);
+		free(str);
+	}
+	return (0);
 }
