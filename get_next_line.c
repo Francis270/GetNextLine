@@ -75,7 +75,7 @@ int		main()
 	char	*str = NULL;
 	int	file_desc = 0;
 
-	while (!(str = get_next_line(file_desc)) {
+	while ((str = get_next_line(file_desc)) {
 		printf("%s\n", str);
 		free(str);
 	}
