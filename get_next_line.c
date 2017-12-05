@@ -10,6 +10,20 @@ bool            my_free(void *ptr)
         return (true);
 }
 
+void            *my_memset(void *s, const int c, const size_t n)
+{
+        char    *d = (char *)s;
+        size_t  i = n;
+
+        if (i) {
+                i++;
+                while (--i) {
+                        *d++ = (unsigned char)c;
+                }
+        }
+        return (s);
+}
+
 void                    *my_memcpy(void *dest, const void *src, const size_t n)
 {
         char            *dp = dest;
