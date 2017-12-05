@@ -71,12 +71,11 @@ char                    *get_next_line(const int fd)
         if (!(s = malloc(sizeof(char) * (READ_SIZE + 1))))
                 return (NULL);
         while (nc != '\n') {
-                if (!rd && my_memset(buf, 0, READ_SIZE) &&
-                (s_rd = (rd = read(fd, buf, READ_SIZE))) && s_rd <= 0)
-                        return (NULL);
-                if (((nc = buf[((rd--) - s_rd) * -1]) != '\n' &&
+                if ((!rd && my_memset(buf, 0, READ_SIZE) &&
+                (s_rd = (rd = read(fd, buf, READ_SIZE))) && s_rd <= 0) ||
+                (((nc = buf[((rd--) - s_rd) * -1]) != '\n' &&
                 !(s[i++] = nc)) || (!(i % READ_SIZE) && !(s[i] = 0) &&
-                !(s = my_realloc(s, sizeof(char) * (i + READ_SIZE + 1)))))
+                !(s = my_realloc(s, sizeof(char) * (i + READ_SIZE + 1))))))
                         return (NULL);
         }
         s[i] = 0;
