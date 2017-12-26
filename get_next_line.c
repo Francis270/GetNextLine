@@ -62,8 +62,8 @@ void            *my_realloc(void *ptr, const size_t size)
 char                    *get_next_line(const int fd)
 {
         static char     buf[READ_SIZE];
-        static int      rd = 0;
-        static int      s_rd = 0;
+        static ssize_t  rd = 0;
+        static ssize_t  s_rd = 0;
         char            *s = NULL;
         char            nc = 0;
         size_t          i = 0;
